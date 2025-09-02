@@ -31,8 +31,8 @@
 **Focus:** Programming, Basic Math, Statistics Fundamentals
 
 **Monday - Wednesday:** Programming & Data Structures
-- Python basics, data structures (lists, stacks, queues)
-- [ ]Sorting algorithms (bubble, selection, insertion)
+- [X]Python basics, data structures (lists, stacks, queues)
+- [X]Sorting algorithms (bubble, selection, insertion)
 - Hash tables and basic tree operations
 
 **Thursday - Friday:** Probability & Statistics Basics
