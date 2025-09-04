@@ -83,7 +83,7 @@ class SinglyCircularLinkedList:
         self.size -= 1
         return deleted_data
 
-    def insert_at(self,data,index):
+    def insert_at(self,index,data):
         if index < 0 or index > self.size:
             raise IndexError("Index Out of Bounds")
         if index == 0:
@@ -148,8 +148,67 @@ class SinglyCircularLinkedList:
             elements.append(str(current.data))
             current =current.next
         return "-> ".join(elements) +"->(back to "+str(self.head.data)+" HEAD )"
-
+    
+    def display_n_rounds(self,rounds=2):
+        if self.is_empty():
+            return "Linked List is empty"
+        elements =[]
+        current = self.head
+        total_elements = rounds * self.size
+        for i in range(total_elements):
+            elements.append(str(current.data))
+            current = current.next
+        return "->".join(elements) + "-> ..."
+    
+    def to_list(self):
+        if self.is_empty():
+            return []
+        elements = []
+        current = self.head
+        elements.append(str(current.data))
+        current = current.next
+        while current != self.head:
+            elements.append(str(current.data))
+            current = current.next
+        
+        return elements
     def __len__(self):
         return self.size
     def __str__(self):
         return self.display()
+    
+    def __iter__(self):
+        if self.is_empty():
+            return
+        current = self.head
+        yield current.data
+        current = current.next
+        while current != self.head:
+            yield current.data
+            current =current.next
+if __name__ == "__main__":
+    print("=== Singly Circular LinkedList Demo ===")
+    
+    # Create singly circular list
+    scl = SinglyCircularLinkedList()
+    
+    # Add elements
+    scl.append(1)
+    scl.append(2)
+    scl.append(3)
+    scl.prepend(0)
+    
+    print(f"Singly circular list: {scl}")
+    print(f"Two rounds: {scl.display_n_rounds(2)}")
+    print(f"Size: {len(scl)}")
+    
+    # Test operations
+    print(f"Element at index 2: {scl.get(2)}")
+    print(f"Index of element 2: {scl.find(2)}")
+    
+    scl.insert_at(2, 1.5)
+    print(f"After inserting 1.5 at index 2: {scl}")
+    
+    deleted = scl.delete_at(1)
+    print(f"Deleted element {deleted}: {scl}")
+
