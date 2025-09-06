@@ -81,4 +81,6 @@ if __name__ == "__main__":
     
     print(f"Dequeued: {ll_queue.dequeue()}")
     print(f"Dequeued: {ll_queue.dequeue()}")
+    for i in range(3):
+        ll_queue.dequeue()
     ll_queue.display()
