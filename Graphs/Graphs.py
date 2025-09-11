@@ -41,6 +41,39 @@ class Graph:
             neighbours = self.adjacency_list[vertex]
             print(f"    {vertex}:{neighbours}")
         print("=" * 25)
+    
+class GraphTraversal(Graph):
+    """Graph traversal algorithms - BFS and DFS implementations"""
+    def __init__(self,graph):
+        super.__init__() 
+    def bfs(self,start_vertex):
+        """
+        BFS Traversal - Level by level exploration
+        Uses QUEUE (First In, First Out)
+        Great for: Shortest path, minimum steps problems
+        Time: O(V + E), Space: O(V)
+        """
+        if start_vertex not in self.graph.vertices:
+            print(f"Vertex {start_vertex} not found!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     print("=" * 60)
