@@ -261,3 +261,529 @@ if __name__ == "__main__":
         print(f"Peek at empty stack: {e}")
     
     print("\n=== Stack Implementation Complete ===")
+    # 🥞 StackApplications Class - All the Stack Magic in One Place!
+# Perfect for GATE DA 2026 preparation
+
+class StackApplications:
+    """
+    A comprehensive class demonstrating 5 crucial stack applications.
+    Each method is self-contained and includes step-by-step explanations!
+    """
+    
+    def __init__(self):
+        """
+        Initialize the StackApplications class.
+        We'll use Python lists as stacks (append = push, pop = pop)
+        """
+        self.debug = True  # Set to True to see step-by-step process
+    
+    def set_debug(self, debug_mode):
+        """Enable/disable step-by-step debugging output"""
+        self.debug = debug_mode
+    
+    # ============================================================
+    # 1️⃣ PARENTHESES/BRACKET MATCHING
+    # ============================================================
+    
+    def is_balanced_parentheses(self, expression):
+        """
+        Check if parentheses/brackets are balanced in an expression.
+        
+        Examples:
+        - "((()))" → True
+        - "([{}])" → True  
+        - "((())" → False
+        - "([)]" → False
+        
+        Logic: Use stack to track opening brackets, pop when closing found.
+        """
+        if self.debug:
+            print(f"\n🔍 Checking if '{expression}' has balanced brackets...")
+        
+        stack = []
+        # Mapping of closing to opening brackets
+        bracket_map = {')': '(', '}': '{', ']': '['}
+        opening_brackets = set(['(', '{', '['])
+        
+        for i, char in enumerate(expression):
+            if self.debug:
+                print(f"  Step {i+1}: Processing '{char}', Stack: {stack}")
+            
+            if char in opening_brackets:
+                # Opening bracket - push to stack
+                stack.append(char)
+                if self.debug:
+                    print(f"    → Opening bracket, pushed to stack")
+            
+            elif char in bracket_map:
+                # Closing bracket
+                if not stack:
+                    if self.debug:
+                        print(f"    → Closing bracket but stack empty! ❌")
+                    return False
+                
+                top = stack.pop()
+                expected = bracket_map[char]
+                
+                if top != expected:
+                    if self.debug:
+                        print(f"    → Mismatch! Expected '{expected}' but got '{top}' ❌")
+                    return False
+                
+                if self.debug:
+                    print(f"    → Matched '{top}' with '{char}' ✅")
+        
+        # Stack should be empty for balanced expression
+        is_balanced = len(stack) == 0
+        
+        if self.debug:
+            if is_balanced:
+                print(f"  Result: Balanced! ✅")
+            else:
+                print(f"  Result: Unbalanced! Remaining: {stack} ❌")
+        
+        return is_balanced
+    
+    # ============================================================
+    # 2️⃣ INFIX TO POSTFIX CONVERSION
+    # ============================================================
+    
+    def infix_to_postfix(self, infix_expression):
+        """
+        Convert infix expression to postfix using Shunting Yard algorithm.
+        
+        Examples:
+        - "A+B" → "AB+"
+        - "A+B*C" → "ABC*+"
+        - "(A+B)*C" → "AB+C*"
+        
+        Logic: Use stack for operators, handle precedence and associativity.
+        """
+        if self.debug:
+            print(f"\n🔄 Converting '{infix_expression}' from infix to postfix...")
+        
+        # Define operator precedence (higher number = higher precedence)
+        precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+        
+        # Right associative operators
+        right_associative = {'^'}
+        
+        stack = []  # Operator stack
+        postfix = []  # Output list
+        
+        for i, token in enumerate(infix_expression):
+            if self.debug:
+                print(f"  Step {i+1}: Processing '{token}'")
+                print(f"    Stack: {stack}, Output: {''.join(postfix)}")
+            
+            if token.isalnum():  # Operand (letter or number)
+                postfix.append(token)
+                if self.debug:
+                    print(f"    → Operand: Added '{token}' to output")
+            
+            elif token == '(':  # Left parenthesis
+                stack.append(token)
+                if self.debug:
+                    print(f"    → Left parenthesis: Pushed to stack")
+            
+            elif token == ')':  # Right parenthesis
+                # Pop operators until left parenthesis
+                while stack and stack[-1] != '(':
+                    op = stack.pop()
+                    postfix.append(op)
+                    if self.debug:
+                        print(f"    → Popped '{op}' to output")
+                
+                if stack:  # Remove the left parenthesis
+                    stack.pop()
+                    if self.debug:
+                        print(f"    → Removed matching '(' from stack")
+            
+            elif token in precedence:  # Operator
+                # Pop operators with higher or equal precedence
+                while (stack and 
+                       stack[-1] != '(' and 
+                       stack[-1] in precedence and
+                       (precedence[stack[-1]] > precedence[token] or
+                        (precedence[stack[-1]] == precedence[token] and 
+                         token not in right_associative))):
+                    
+                    op = stack.pop()
+                    postfix.append(op)
+                    if self.debug:
+                        print(f"    → Popped higher precedence '{op}' to output")
+                
+                stack.append(token)
+                if self.debug:
+                    print(f"    → Pushed operator '{token}' to stack")
+        
+        # Pop remaining operators
+        while stack:
+            op = stack.pop()
+            postfix.append(op)
+            if self.debug:
+                print(f"  Final: Popped '{op}' to output")
+        
+        result = ''.join(postfix)
+        if self.debug:
+            print(f"  Result: '{infix_expression}' → '{result}' ✅")
+        
+        return result
+    
+    # ============================================================
+    # 3️⃣ POSTFIX EXPRESSION EVALUATION
+    # ============================================================
+    
+    def evaluate_postfix(self, postfix_expression, variables=None):
+        """
+        Evaluate a postfix expression and return the result.
+        
+        Examples:
+        - "23+" → 5
+        - "23*4+" → 10
+        - "AB+C*" with A=2, B=3, C=4 → 20
+        
+        Logic: Use stack to store operands, pop two when operator found.
+        """
+        if variables is None:
+            variables = {}
+        
+        if self.debug:
+            print(f"\n🧮 Evaluating postfix expression '{postfix_expression}'")
+            if variables:
+                print(f"  Variables: {variables}")
+        
+        stack = []
+        
+        for i, token in enumerate(postfix_expression):
+            if self.debug:
+                print(f"  Step {i+1}: Processing '{token}', Stack: {stack}")
+            
+            if token.isdigit():  # Single digit number
+                stack.append(int(token))
+                if self.debug:
+                    print(f"    → Number: Pushed {token} to stack")
+            
+            elif token.isalpha() and token in variables:  # Variable
+                value = variables[token]
+                stack.append(value)
+                if self.debug:
+                    print(f"    → Variable: {token} = {value}, pushed to stack")
+            
+            elif token in ['+', '-', '*', '/', '^']:  # Operator
+                if len(stack) < 2:
+                    raise ValueError(f"Invalid expression: Not enough operands for '{token}'")
+                
+                # Pop two operands (order matters!)
+                operand2 = stack.pop()  # Second operand
+                operand1 = stack.pop()  # First operand
+                
+                # Perform operation
+                if token == '+':
+                    result = operand1 + operand2
+                elif token == '-':
+                    result = operand1 - operand2
+                elif token == '*':
+                    result = operand1 * operand2
+                elif token == '/':
+                    result = operand1 / operand2
+                elif token == '^':
+                    result = operand1 ** operand2
+                
+                stack.append(result)
+                
+                if self.debug:
+                    print(f"    → Operation: {operand1} {token} {operand2} = {result}")
+        
+        if len(stack) != 1:
+            raise ValueError("Invalid postfix expression")
+        
+        final_result = stack[0]
+        if self.debug:
+            print(f"  Final Result: {final_result} ✅")
+        
+        return final_result
+    
+    # ============================================================
+    # 4️⃣ NEXT GREATER ELEMENT
+    # ============================================================
+    
+    def next_greater_element(self, arr):
+        """
+        Find the next greater element for each element in the array.
+        
+        Examples:
+        - [4, 5, 2, 25] → [5, 25, 25, -1]
+        - [13, 7, 6, 12] → [-1, 12, 12, -1]
+        
+        Logic: Use stack to keep track of elements waiting for their next greater element.
+        """
+        if self.debug:
+            print(f"\n📈 Finding next greater elements for {arr}")
+        
+        stack = []  # Stack stores indices, not values
+        result = [-1] * len(arr)  # Initialize result with -1
+        
+        for i in range(len(arr)):
+            if self.debug:
+                print(f"  Step {i+1}: Processing arr[{i}] = {arr[i]}")
+                print(f"    Stack indices: {stack}")
+            
+            # While stack is not empty and current element is greater
+            # than the element at the index stored at top of stack
+            while stack and arr[i] > arr[stack[-1]]:
+                index = stack.pop()
+                result[index] = arr[i]
+                
+                if self.debug:
+                    print(f"    → Found next greater for arr[{index}]={arr[index]}: {arr[i]}")
+            
+            # Push current index to stack
+            stack.append(i)
+            
+            if self.debug:
+                print(f"    → Pushed index {i} to stack")
+                print(f"    → Current result: {result}")
+        
+        if self.debug:
+            print(f"  Final Result: {result} ✅")
+            # Pretty print the mapping
+            print("  Element → Next Greater:")
+            for i, val in enumerate(arr):
+                next_greater = result[i] if result[i] != -1 else "None"
+                print(f"    {val} → {next_greater}")
+        
+        return result
+    
+    # ============================================================
+    # 5️⃣ FUNCTION CALL STACK (RECURSION SIMULATION)
+    # ============================================================
+    
+    def simulate_recursion(self, n, function_type="factorial"):
+        """
+        Simulate how the call stack works during recursion.
+        
+        Supported functions:
+        - "factorial": Calculate n! (factorial)
+        - "fibonacci": Calculate fibonacci(n)
+        
+        This shows how the call stack grows and shrinks during recursion.
+        """
+        if self.debug:
+            print(f"\n🔄 Simulating {function_type}({n}) recursion...")
+        
+        call_stack = []  # Simulate the function call stack
+        results = {}     # Store computed results
+        
+        if function_type == "factorial":
+            return self._simulate_factorial(n, call_stack, results)
+        elif function_type == "fibonacci":
+            return self._simulate_fibonacci(n, call_stack, results)
+        else:
+            raise ValueError(f"Unsupported function type: {function_type}")
+    
+    def _simulate_factorial(self, n, call_stack, results):
+        """Helper method to simulate factorial recursion"""
+        
+        def factorial_step(n, depth=0):
+            indent = "  " * depth
+            
+            if self.debug:
+                print(f"{indent}📞 Calling factorial({n})")
+            
+            # Push to call stack
+            call_frame = f"factorial({n})"
+            call_stack.append(call_frame)
+            
+            if self.debug:
+                print(f"{indent}   Call stack: {call_stack}")
+            
+            # Base case
+            if n <= 1:
+                result = 1
+                if self.debug:
+                    print(f"{indent}   Base case: factorial({n}) = {result}")
+            else:
+                # Recursive case
+                if self.debug:
+                    print(f"{indent}   Recursive case: factorial({n}) = {n} * factorial({n-1})")
+                
+                # Make recursive call
+                recursive_result = factorial_step(n-1, depth+1)
+                result = n * recursive_result
+                
+                if self.debug:
+                    print(f"{indent}   Returning: {n} * {recursive_result} = {result}")
+            
+            # Pop from call stack
+            call_stack.pop()
+            
+            if self.debug:
+                print(f"{indent}🔙 Returning from factorial({n}) = {result}")
+                print(f"{indent}   Call stack after return: {call_stack}")
+            
+            return result
+        
+        return factorial_step(n)
+    
+    def _simulate_fibonacci(self, n, call_stack, results):
+        """Helper method to simulate fibonacci recursion"""
+        
+        def fibonacci_step(n, depth=0):
+            indent = "  " * depth
+            
+            if self.debug:
+                print(f"{indent}📞 Calling fibonacci({n})")
+            
+            # Push to call stack
+            call_frame = f"fibonacci({n})"
+            call_stack.append(call_frame)
+            
+            if self.debug:
+                print(f"{indent}   Call stack: {call_stack}")
+            
+            # Base cases
+            if n <= 1:
+                result = n
+                if self.debug:
+                    print(f"{indent}   Base case: fibonacci({n}) = {result}")
+            else:
+                # Recursive case
+                if self.debug:
+                    print(f"{indent}   Recursive: fibonacci({n}) = fibonacci({n-1}) + fibonacci({n-2})")
+                
+                # Make recursive calls
+                fib1 = fibonacci_step(n-1, depth+1)
+                fib2 = fibonacci_step(n-2, depth+1)
+                result = fib1 + fib2
+                
+                if self.debug:
+                    print(f"{indent}   Returning: {fib1} + {fib2} = {result}")
+            
+            # Pop from call stack
+            call_stack.pop()
+            
+            if self.debug:
+                print(f"{indent}🔙 Returning from fibonacci({n}) = {result}")
+            
+            return result
+        
+        return fibonacci_step(n)
+    
+    # ============================================================
+    # 🎮 DEMO METHODS - Test All Applications!
+    # ============================================================
+    
+    def demo_all_applications(self):
+        """Run demonstrations of all 5 stack applications"""
+        
+        print("🥞 STACK APPLICATIONS DEMO")
+        print("=" * 50)
+        
+        # 1. Parentheses Matching
+        print("\n1️⃣ PARENTHESES/BRACKET MATCHING")
+        print("-" * 35)
+        test_expressions = [
+            "((()))",      # Balanced
+            "([{}])",      # Balanced with different brackets
+            "((())",       # Unbalanced
+            "([)]",        # Wrong order
+            "{[()]}",      # Nested and balanced
+        ]
+        
+        for expr in test_expressions:
+            result = self.is_balanced_parentheses(expr)
+            status = "✅ Balanced" if result else "❌ Unbalanced"
+            print(f"'{expr}' → {status}")
+        
+        # 2. Infix to Postfix
+        print("\n2️⃣ INFIX TO POSTFIX CONVERSION")
+        print("-" * 35)
+        infix_expressions = [
+            "A+B",
+            "A+B*C", 
+            "(A+B)*C",
+            "A+B*C-D",
+            "A^B^C",  # Right associative
+        ]
+        
+        for expr in infix_expressions:
+            postfix = self.infix_to_postfix(expr)
+            print(f"'{expr}' → '{postfix}'")
+        
+        # 3. Postfix Evaluation
+        print("\n3️⃣ POSTFIX EVALUATION")
+        print("-" * 25)
+        postfix_expressions = [
+            ("23+", None),
+            ("234*+", None),
+            ("ABC*+", {"A": 2, "B": 3, "C": 4}),
+        ]
+        
+        for expr, vars in postfix_expressions:
+            try:
+                result = self.evaluate_postfix(expr, vars)
+                print(f"'{expr}' = {result}")
+            except Exception as e:
+                print(f"'{expr}' → Error: {e}")
+        
+        # 4. Next Greater Element
+        print("\n4️⃣ NEXT GREATER ELEMENT")
+        print("-" * 25)
+        arrays = [
+            [4, 5, 2, 25],
+            [13, 7, 6, 12],
+            [1, 2, 3, 4, 5],
+        ]
+        
+        for arr in arrays:
+            result = self.next_greater_element(arr)
+            print(f"{arr} → {result}")
+        
+        # 5. Recursion Simulation
+        print("\n5️⃣ FUNCTION CALL STACK SIMULATION")
+        print("-" * 35)
+        
+        # Factorial
+        print("Factorial(4):")
+        result = self.simulate_recursion(4, "factorial")
+        print(f"Result: {result}")
+        
+        print("\nFibonacci(4):")
+        result = self.simulate_recursion(4, "fibonacci")
+        print(f"Result: {result}")
+
+# ============================================================
+# 🚀 USAGE EXAMPLES
+# ============================================================
+
+if __name__ == "__main__":
+    # Create the stack applications instance
+    stack_apps = StackApplications()
+    
+    # Run the full demo
+    stack_apps.demo_all_applications()
+    
+    # You can also test individual methods:
+    print("\n" + "="*50)
+    print("🧪 INDIVIDUAL TESTING")
+    print("="*50)
+    
+    # Test specific functionality
+    print("\nTesting bracket matching:")
+    print(stack_apps.is_balanced_parentheses("({[]})"))  # Should be True
+    
+    print("\nTesting infix to postfix:")
+    postfix = stack_apps.infix_to_postfix("(A+B)*C")
+    print(f"Postfix: {postfix}")
+    
+    print("\nTesting postfix evaluation:")
+    result = stack_apps.evaluate_postfix("23+4*", None)
+    print(f"Result: {result}")
+    
+    # Turn off debug mode for cleaner output
+    print("\n--- With debug mode OFF ---")
+    stack_apps.set_debug(False)
+    
+    result = stack_apps.next_greater_element([4, 5, 2, 25, 3])
+    print(f"Next greater elements: {result}")
