@@ -167,9 +167,46 @@ class StackApplications:
         final_result = stack[0]
         if self.debug:
             print(f"    Final Result: {final_result}")
-
         return final_result
-
+    
+    def next_greater_element(self,arr):
+        """
+        Find the next greater element for each element in the array.
+        
+        Examples:
+        - [4, 5, 2, 25] → [5, 25, 25, -1]
+        - [13, 7, 6, 12] → [-1, 12, 12, -1]
+        
+        Logic: Use stack to keep track of elements waiting for their next greater element.
+        """
+        if self.debug:
+            print(f"\n Finding the next greatest elements for {arr}")
+        stack =[]
+        result = [-1] * len(arr)
+        for i in range(len(arr)):
+            if self.debug:
+                print(f"  Step {i+1}: Processing arr[{i}] = {arr[i]}")
+                print(f"    Stack indices: {stack}")
+            while stack and arr[i] > arr[stack[-1]]:
+                index = stack.pop()
+                result[index] = arr[i]
+                if self.debug:
+                    print(f"    → Found next greater for arr[{index}]={arr[index]}: {arr[i]}")
+            
+            stack.append(i)
+            if self.debug:
+                print(f"    → Pushed index {i} to stack")
+                print(f"    → Current result: {result}")
+        
+        if self.debug:
+            print(f"  Final Result: {result} ✅")
+            # Pretty print the mapping
+            print("  Element → Next Greater:")
+            for i, val in enumerate(arr):
+                next_greater = result[i] if result[i] != -1 else "None"
+                print(f"    {val} → {next_greater}")
+        
+        return result
 
 
 if __name__ == "__main__":
@@ -184,3 +221,8 @@ if __name__ == "__main__":
     print("\n Testing Postfix Evaluation:")
     post_eval = stack_apps.postfix_evaluation("23+4*",None)
     print(f"Result of Postfix Evaluation: {post_eval}")
+    print("\n--- With debug mode OFF ---")
+    stack_apps.set_debug(True)
+    
+    result = stack_apps.next_greater_element([4, 5, 2, 25, 3])
+    print(f"Next greater elements: {result}")
