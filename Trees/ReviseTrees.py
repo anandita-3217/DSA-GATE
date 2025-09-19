@@ -170,6 +170,24 @@ class BinaryTree:
                 is_last_child = i == len(children) - 1
                 extension = "   " if is_last else "|    "
                 self._display_tree_helper(child,prefix+extension,is_last_child)
+
+class BinarySearchTree(BinaryTree):
+    def __init__(self):
+        super().__init__()
+    
+    def insert_bst(self,data):
+        self.root = self._insert_bst_helper(self.root,data)
+        self.size += 1
+        print(f"Inserted {data}")
+    def _insert_bst_helper(self,node,data):
+        if node is None:
+            return TreeNode(data)
+        
+        if data < node.data:
+            node.left = self._insert_bst_helper(node.left,data)
+        else:
+            node.right = self._insert_bst_helper(node.right,data)
+        return node
 if __name__ == "__main__":
     print(f"Running Trees")
     print("1. Creating Binary Tree")
