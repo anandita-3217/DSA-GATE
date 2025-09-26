@@ -1,115 +1,128 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Node{
+typedef struct Node {
     int data;
     struct Node* left;
     struct Node* right;
 } Node;
 
-Node* createNode(int data){
+// Create a new node
+Node* createNode(int data) {
     Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode -> data = data;
-    newNode -> left = NULL;
-    newNode -> right = NULL;
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
     return newNode;
 }
-void insert(Node** root, int data){
-    if(*root == NULL){
+
+// Insert a node into the BST
+void insert(Node** root, int data) {
+    if (*root == NULL) {
         *root = createNode(data);
         return;
     }
-    if (data<(*root) -> data){
-        insert(&((*root)->left),data);
+    
+    if (data < (*root)->data) {
+        insert(&((*root)->left), data);
+    } else if (data > (*root)->data) {
+        insert(&((*root)->right), data);
     }
-    else if (data>(*root) -> data){
-        insert(&((*root)->right),data);
+    // If data equals root->data, we don't insert (no duplicates)
+}
+
+// Find the minimum value node in a tree
+Node* findMin(Node* root) {
+    while (root && root->left != NULL) {
+        root = root->left;
+    }
+    return root;
+}
+
+// Delete a node from the BST
+Node* delete(Node* root, int data) {
+    if (root == NULL) {
+        return root;
+    }
+    
+    if (data < root->data) {
+        root->left = delete(root->left, data);
+    } else if (data > root->data) {
+        root->right = delete(root->right, data);
+    } else {
+        // Node to be deleted found
         
-    }
-    
-}
-Node* findMin(Node* root){
-    if (root&& root-> left != NULL){
-        root = root -> left;
-    }
-    return root;
-
-}
-Node* findMax(Node* root){
-    if (root&& root-> right != NULL){
-        root = root -> right;
-    }
-    return root;
-
-}
-Node* delete(Node* root, int data){
-    if (root == NULL){
-        return root;
-    }
-    if (data<root->data){
-        root -> left = delete(root->left,data);
-    }
-    else if (data>root->data){
-        root -> right = delete(root->right,data);
-    }
-    else
-    {
-        if (root->left == NULL){
-            Node* temp = root -> right;
+        // Case 1: No child or only right child
+        if (root->left == NULL) {
+            Node* temp = root->right;
             free(root);
             return temp;
         }
-        else if (root->right == NULL){
-            Node* temp = root -> left;
+        // Case 2: Only left child
+        else if (root->right == NULL) {
+            Node* temp = root->left;
             free(root);
             return temp;
         }
+        
+        // Case 3: Two children
         Node* temp = findMin(root->right);
-        root -> data = temp->data;
-        root->right = delete(root->right,temp->data);
+        root->data = temp->data;
+        root->right = delete(root->right, temp->data);
     }
     return root;
 }
-Node* search(Node* root,int data){
-    if (root == NULL || root->data == data){
+
+// Search for a value in the BST
+Node* search(Node* root, int data) {
+    if (root == NULL || root->data == data) {
         return root;
     }
-    if(data < root->data){
-        return search(root->left,data);
-    }
-    return search(root -> right,data);
     
+    if (data < root->data) {
+        return search(root->left, data);
+    }
+    
+    return search(root->right, data);
 }
 
-void inorder(Node* root){
-    if(root != NULL){
+// Inorder traversal (Left -> Root -> Right)
+void inorder(Node* root) {
+    if (root != NULL) {
         inorder(root->left);
-        printf("%d ",root -> data);
+        printf("%d ", root->data);
         inorder(root->right);
     }
 }
-void preorder(Node* root){
-    if (root != NULL){
-        printf("%d ",root->data);
+
+// Preorder traversal (Root -> Left -> Right)
+void preorder(Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
         preorder(root->left);
         preorder(root->right);
     }
 }
-void postorder(Node* root){
-    if (root != NULL){
+
+// Postorder traversal (Left -> Right -> Root)
+void postorder(Node* root) {
+    if (root != NULL) {
         postorder(root->left);
         postorder(root->right);
-        printf("%d ",root->data);
+        printf("%d ", root->data);
     }
-    
 }
-void freeTree(Node* root){
-    if (root!= NULL){
+
+// Free all nodes in the tree
+void freeTree(Node* root) {
+    if (root != NULL) {
         freeTree(root->left);
         freeTree(root->right);
         free(root);
     }
 }
+
+// Main function to demonstrate usage
 int main() {
     Node* root = NULL;
     
