@@ -37,14 +37,19 @@ def iddfs_graph(graph, start, target, max_depth=float('inf')):
         depth at which target was found, or -1 if not found
     """
     # Try increasing depth limits
-    for depth_limit in range(max_depth + 1):
-        print(f"\n--- Trying depth limit: {depth_limit} ---")
+    # for depth_limit in range(max_depth + 1):
+    #     print(f"\n--- Trying depth limit: {depth_limit} ---")
+    #     visited = set()
+    #     found = dls(graph, start, target, depth_limit, visited)
+    #     if found:
+    #         return depth_limit
+    
+    # return -1  # Not found
+    for depth_limit in range(max_depth+1):
         visited = set()
-        found = dls(graph, start, target, depth_limit, visited)
+        found = dls(graph,start,target,depth_limit-1,visited)
         if found:
             return depth_limit
-    
-    return -1  # Not found
 
 
 def dls(graph, node, target, depth_limit, visited):
@@ -61,41 +66,59 @@ def dls(graph, node, target, depth_limit, visited):
     Returns:
         True if target found, False otherwise
     """
-    print(f"Visiting: {node} at depth {depth_limit}")
-    
-    # Found target
+    print(f"Node: {node}, Current depth: {depth_limit}")
     if node == target:
         return True
-    
-    # Reached depth limit
     if depth_limit == 0:
         return False
-    
-    # Mark as visited (for current path only)
     visited.add(node)
-    
-    # Explore neighbors with reduced depth
-    for neighbor in graph.get(node, []):
-        if neighbor not in visited:
-            if dls(graph, neighbor, target, depth_limit - 1, visited):
+    for neighbour in graph.get(node,[]):
+        if neighbour not in visited:
+            if dls(graph,neighbour,target,depth_limit -1,visited):
                 return True
-    
-    # Backtrack
     visited.remove(node)
     return False
+    # print(f"Visiting: {node} at depth {depth_limit}")
+    
+    # # Found target
+    # if node == target:
+    #     return True
+    
+    # # Reached depth limit
+    # if depth_limit == 0:
+    #     return False
+    
+    # # Mark as visited (for current path only)
+    # visited.add(node)
+    
+    # # Explore neighbors with reduced depth
+    # for neighbor in graph.get(node, []):
+    #     if neighbor not in visited:
+    #         if dls(graph, neighbor, target, depth_limit - 1, visited):
+    #             return True
+    
+    # Backtrack
+    # visited.remove(node)
+    # return False
 if __name__ == "__main__":
-    graph_dfs= {
-        'A': ['B', 'C'],
-        'B': ['A', 'D', 'E'],
-        'C': ['A', 'F'],
-        'D': ['B'],
-        'E': ['B', 'F'],
-        'F': ['C', 'E']
-    }
+    graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F', 'G'],
+    'D': [],
+    'E': ['H'],
+    'F': [],
+    'G': [],
+    'H': []
+}
 
-    # fin_d = dfs(graph_dfs, 'A')
+    # fin_d = dfs(graph, 'A')
     # print(f"All visited nodes in dfs: {fin_d}")
 
-    fin_b = bfs(graph_dfs, 'A')
-    print(f"All visited nodes in bfs: {fin_b}")
+    # fin_b = bfs(graph, 'A')
+    # print(f"All visited nodes in bfs: {fin_b}")
+
+    depth = iddfs_graph(graph, 'A', 'H', max_depth=10)
+    print(f"\nFound 'H' at depth: {depth}")
+
 
