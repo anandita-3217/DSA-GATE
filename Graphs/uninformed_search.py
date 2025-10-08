@@ -50,6 +50,7 @@ def iddfs_graph(graph, start, target, max_depth=float('inf')):
         found = dls(graph,start,target,depth_limit-1,visited)
         if found:
             return depth_limit
+    return -1
 
 
 def dls(graph, node, target, depth_limit, visited):
