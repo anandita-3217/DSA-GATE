@@ -1,7 +1,5 @@
 from collections import deque
-
-
-
+import heapq
 
 def dfs(graph,root,visited=None):
     if visited is None:
@@ -79,39 +77,37 @@ def dls(graph, node, target, depth_limit, visited):
                 return True
     visited.remove(node)
     return False
-    # print(f"Visiting: {node} at depth {depth_limit}")
-    
-    # # Found target
-    # if node == target:
-    #     return True
-    
-    # # Reached depth limit
-    # if depth_limit == 0:
-    #     return False
-    
-    # # Mark as visited (for current path only)
-    # visited.add(node)
-    
-    # # Explore neighbors with reduced depth
-    # for neighbor in graph.get(node, []):
-    #     if neighbor not in visited:
-    #         if dls(graph, neighbor, target, depth_limit - 1, visited):
-    #             return True
-    
-    # Backtrack
-    # visited.remove(node)
-    # return False
+
+def ucs(graph,root,target):
+    pq = [(0,root,[root])]
+    visited = set()
+    while pq:
+        cost,node,path = heapq.heappop(pq)
+        if node == target:
+            return path,cost
+        if node in visited:
+            continue
+        visited.add(node)
+        # print(f"Expanding: {node} | Cost so far: {cost} | Path: {path}")
+
+        for neighbour,edge_cost in graph.get(node,[]):
+            if neighbour not in visited:
+                new_cost = cost+edge_cost
+                new_path = path+[neighbour]
+                heapq.heappush(pq,(new_cost,neighbour,new_path))
+    return None,float('inf')
+
 if __name__ == "__main__":
-    graph = {
-    'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F', 'G'],
-    'D': [],
-    'E': ['H'],
-    'F': [],
-    'G': [],
-    'H': []
-}
+#     graph = {
+#     'A': ['B', 'C'],
+#     'B': ['D', 'E'],
+#     'C': ['F', 'G'],
+#     'D': [],
+#     'E': ['H'],
+#     'F': [],
+#     'G': [],
+#     'H': []
+# }
 
     # fin_d = dfs(graph, 'A')
     # print(f"All visited nodes in dfs: {fin_d}")
@@ -119,7 +115,21 @@ if __name__ == "__main__":
     # fin_b = bfs(graph, 'A')
     # print(f"All visited nodes in bfs: {fin_b}")
 
-    depth = iddfs_graph(graph, 'A', 'H', max_depth=10)
-    print(f"\nFound 'H' at depth: {depth}")
+    # depth = iddfs_graph(graph, 'A', 'H', max_depth=10)
+    # print(f"\nFound 'H' at depth: {depth}")
 
+    weighted_graph = {
+        'A': [('B', 1), ('C', 4)],
+        'B': [('D', 2), ('E', 5)],
+        'C': [('F', 2), ('G', 1)],
+        'D': [('H', 3)],
+        'E': [('H', 1)],
+        'F': [],
+        'G': [('H', 2)],
+        'H': []
+    }
+
+    path, cost = ucs(weighted_graph, 'A', 'H')
+    print(f"\n✓ Shortest path: {' -> '.join(path)}")
+    print(f"✓ Total cost: {cost}")
 
