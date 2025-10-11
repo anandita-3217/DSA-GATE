@@ -4,8 +4,9 @@ import math
 def euclidean_distance(p1,p2):
     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]+p2[1])**2)
 def greedy_best_first(graph,root,target,heuristic):
+    print(f"Using GBFS - only heuristic formula: f(n) = h(n)")
     visited = set()
-    pq = [(heuristic(root),root,[root],0)]
+    pq = [(heuristic[root],root,[root],0)]
     while pq:
         h,node,path,cost = heapq.heappop(pq)
         if node == target:
@@ -19,6 +20,29 @@ def greedy_best_first(graph,root,target,heuristic):
                 new_path = path+[node]
                 new_cost = cost+edge_cost
                 heapq.heappush(pq,(h_neighbour,neighbour,new_path,new_cost))
+    return None,float('-inf')
+
+def a_star(graph,root,target,heuristic):
+    print(f"Using A* - only heuristic formula: f(n) = g(n) + h(n)")
+    visited = {}
+    # Priority queue: (f(n), g(n), node, path)
+    pq = [(heuristic[root],0,root,[root])]
+    while pq:
+        f,g,node,path = heapq.heappop(pq)
+        if node == target:
+            return path, g
+        if node in visited and visited[node] <= g:
+            continue
+        visited[node] = g
+        h = heuristic[node]
+        for neighbour,edge_cost in graph.get(node,[]):
+            if neighbour not in visited:
+                new_g = g+edge_cost
+                new_h = heuristic[neighbour]
+                new_f = new_g + new_h
+                if neighbour not in visited or visited[neighbour] > new_g:
+                    new_path = path + [neighbour]
+                    heapq.heappush(pq,(new_f,new_g,neighbour,new_path))
     return None,float('-inf')
 if __name__ == "__main__":
     # Graph for Greedy and A*
@@ -55,13 +79,13 @@ if __name__ == "__main__":
         print(f"  h({node}) = {h:.2f}")
     print()
     
-    # # Run Greedy Best-First
-    # path1, cost1 = greedy_best_first(graph, 'S', 'G', heuristic)
-    # print(f"Total cost: {cost1}\n")
+    # Run Greedy Best-First
+    path1, cost1 = greedy_best_first(graph, 'S', 'G', heuristic)
+    print(f"Total cost: {cost1}\n")
     
-    # # Run A*
-    # # path2, cost2 = a_star(graph, 'S', 'G', heuristic)
-    # print(f"Total cost: {cost2}\n")
+    # Run A*
+    path2, cost2 = a_star(graph, 'S', 'G', heuristic)
+    print(f"Total cost: {cost2}\n")
     
     # print("=" * 50)
     # print(f"COMPARISON:")
