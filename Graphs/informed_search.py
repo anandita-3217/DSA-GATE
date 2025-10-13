@@ -55,6 +55,126 @@ if __name__ == "__main__":
         'E': [('G', 2)],
         'G': []
     }
+class AOStar:
+    """
+    AO* Search for AND-OR graphs
+    
+    Use cases:
+    - Planning problems with subgoals
+    - Game playing (minimax-like)
+    - Problem decomposition
+    
+    AND nodes: Must solve ALL children
+    OR nodes: Need to solve only ONE child
+    """
+    
+    def __init__(self, graph, heuristic, and_nodes):
+        """
+        Args:
+            graph: dict {node: {child: cost, ...}}
+            heuristic: dict {node: h_value}
+            and_nodes: set of nodes requiring AND decomposition
+        """
+        self.graph = graph
+        self.heuristic = heuristic
+        self.and_nodes = and_nodes
+        self.solution_graph = {}  # Best solution found
+        self.solved = set()
+        self.cost_memo = {}
+    
+    def is_solved(self, node, goal):
+        """Check if a node is completely solved"""
+        if node == goal:
+            return True
+        if node not in self.solution_graph:
+            return False
+        
+        if node in self.and_nodes:
+            # AND node: ALL children must be solved
+            return all(self.is_solved(child, goal) 
+                      for child in self.solution_graph[node])
+        else:
+            # OR node: at least ONE child solved
+            return any(self.is_solved(child, goal) 
+                      for child in self.solution_graph[node])
+    
+    def compute_cost(self, node, goal):
+        """Compute cost of solution from node to goal"""
+        if node in self.cost_memo:
+            return self.cost_memo[node]
+        
+        if node == goal:
+            return 0
+        
+        if node not in self.solution_graph:
+            return float('inf')
+        
+        if node in self.and_nodes:
+            # AND: sum of all children + their edge costs
+            total = 0
+            for child in self.solution_graph[node]:
+                edge_cost = self.graph[node].get(child, float('inf'))
+                child_cost = self.compute_cost(child, goal)
+                total += edge_cost + child_cost
+        else:
+            # OR: minimum of children + edge cost
+            total = float('inf')
+            for child in self.solution_graph[node]:
+                edge_cost = self.graph[node].get(child, float('inf'))
+                child_cost = self.compute_cost(child, goal)
+                total = min(total, edge_cost + child_cost)
+        
+        self.cost_memo[node] = total
+        return total
+    
+    def search(self, start, goal):
+        """Main AO* search algorithm"""
+        open_list = [(self.heuristic[start], start)]
+        
+        print("\n=== AO* SEARCH ===")
+        
+        while open_list and not self.is_solved(start, goal):
+            _, node = heapq.heappop(open_list)
+            
+            if node == goal:
+                self.solved.add(node)
+                continue
+            
+            node_type = "AND" if node in self.and_nodes else "OR"
+            print(f"Expanding: {node:10} | Type: {node_type:3} | h={self.heuristic[node]:5.1f}")
+            
+            # Select successors based on node type
+            if node in self.and_nodes:
+                # AND node: must include ALL children
+                self.solution_graph[node] = list(self.graph.get(node, {}).keys())
+            else:
+                # OR node: choose best child by f = cost + heuristic
+                children = self.graph.get(node, {})
+                if children:
+                    best_child = min(
+                        children.keys(),
+                        key=lambda c: children[c] + self.heuristic[c]
+                    )
+                    self.solution_graph[node] = [best_child]
+            
+            # Clear cost memo when graph changes
+            self.cost_memo = {}
+            
+            # Add unexplored children to open list
+            for child in self.solution_graph.get(node, []):
+                if not self.is_solved(child, goal):
+                    f = self.compute_cost(start, goal) + self.heuristic[child]
+                    heapq.heappush(open_list, (f, child))
+        
+        if self.is_solved(start, goal):
+            cost = self.compute_cost(start, goal)
+            print(f"\n✓ Solution found! Cost: {cost}")
+            print(f"Solution graph: {self.solution_graph}")
+            return self.solution_graph, cost
+        
+        return None, float('inf')
+
+
     
     # Node positions for heuristic calculation
     positions = {
