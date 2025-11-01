@@ -198,7 +198,7 @@ if __name__ == "__main__":
     print(f"After adding 0,1,2,3: {ll}")
     
     # Insert at specific position
-    ll.insert_at(2, 1.5)
+    ll.insert_at(0, 1.5)
     print(f"After inserting 1.5 at index 2: {ll}")
     
     # Access elements
