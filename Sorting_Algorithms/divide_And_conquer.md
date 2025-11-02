@@ -9,6 +9,7 @@
 - **Strategy:** Divide → Sort → Merge
 
 ### Python Code
+
 ```python
 def merge_sort(arr):
     # BASE CASE: arrays with 0 or 1 element are already sorted
